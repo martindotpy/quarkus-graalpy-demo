@@ -1,0 +1,37 @@
+FROM quay.io/quarkus/ubi9-quarkus-mandrel-builder-image:jdk-21 AS builder
+
+ENV LANG=es_ES.UTF-8
+ENV TZ=America/Lima
+
+WORKDIR /app
+
+COPY pom.xml .
+COPY --chown=1001:root --chmod=0755 mvnw .
+COPY .mvn .mvn
+RUN ./mvnw dependency:go-offline -B
+
+COPY src ./src
+
+RUN ./mvnw clean package -Pnative \
+    -DskipTests \
+    -Dquarkus.native.container-build=false \
+    -Dquarkus.native.enable-fallback-images=false \
+    -Dquarkus.native.additional-build-args="--report-unsupported-elements-at-runtime,--enable-url-protocols=http,--install-exit-handlers"
+
+
+FROM quay.io/quarkus/ubi9-quarkus-micro-image:2.0 AS runtime
+
+ENV LANG=es_ES.UTF-8
+ENV TZ=America/Lima
+
+WORKDIR /app
+
+RUN chown 1001 /app && chmod "g+rwX" /app && chown 1001:root /app
+
+COPY --from=builder --chown=1001:root --chmod=0755 /app/target/*-runner /app/application
+
+EXPOSE 8080
+
+USER 1001
+
+ENTRYPOINT ["./application"]
