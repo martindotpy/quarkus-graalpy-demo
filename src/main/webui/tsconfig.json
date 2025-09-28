@@ -1,0 +1,35 @@
+{
+  "include": ["**/*"],
+  "exclude": ["dist", "node_modules", "public", "scripts"],
+  "compilerOptions": {
+    "target": "ES2022",
+    "jsx": "react-jsx",
+    "module": "ESNext",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "types": ["vite/client"],
+
+    // Bundler mode
+    "noEmit": true,
+    "esModuleInterop": true,
+    "moduleResolution": "bundler",
+    "verbatimModuleSyntax": true,
+    "allowImportingTsExtensions": true,
+
+    // Best practices
+    "strict": true,
+    "skipLibCheck": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUncheckedIndexedAccess": true,
+
+    // Some stricter flags (disabled by default)
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noPropertyAccessFromIndexSignature": false,
+
+    // Alias
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

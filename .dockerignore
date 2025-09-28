@@ -1,5 +1,17 @@
 *
-!target/*-runner
-!target/*-runner.jar
-!target/lib/*
-!target/quarkus-app/*
+
+# Project
+!pom.xml
+!graalpy.lock
+
+# Source code
+!src
+
+# Maven wrapper
+!mvnw
+!.mvn
+
+# WebUI
+src/main/webui/node_modules
+src/main/webui/.tanstack
+src/main/webui/dist

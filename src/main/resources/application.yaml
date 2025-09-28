@@ -1,0 +1,45 @@
+quarkus:
+  banner:
+    path: banner.txt
+
+  rest:
+    path: /api
+
+  quinoa:
+    enable-spa-routing: true
+    package-manager-install:
+      ~: true
+      node-version: 24.9.0
+
+  swagger-ui:
+    always-include: true
+    path: /api/docs
+
+  smallrye-openapi:
+    path: /api/openapi
+
+  analytics:
+    disabled: true
+
+  native:
+    resources:
+      includes:
+        - ${graalpy.vfs-path}/**
+
+graalpy:
+  vfs-path: GRAALPY-VFS/${project.groupId}/${project.artifactId}
+
+"%dev":
+  quarkus:
+    console:
+      color: true
+
+    log:
+      console:
+        format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c] (%t) %s%e%n"
+
+  mp:
+    openapi:
+      extensions:
+        smallrye:
+          property-naming-strategy: com.fasterxml.jackson.databind.PropertyNamingStrategies$SnakeCaseStrategy

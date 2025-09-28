@@ -1,5 +1,5 @@
 # Maven
-target/
+target
 pom.xml.tag
 pom.xml.releaseBackup
 pom.xml.versionsBackup
@@ -9,8 +9,8 @@ release.properties
 # Eclipse
 .project
 .classpath
-.settings/
-bin/
+.settings
+bin
 
 # IntelliJ
 .idea
@@ -40,6 +40,17 @@ nb-configuration.xml
 !.env*.example
 
 # Plugin directory
-/.quarkus/cli/plugins/
+/.quarkus/cli/plugins
+
 # TLS Certificates
-.certs/
+.certs
+
+# Node
+node_modules
+dist
+
+# Quinoa
+.quinoa
+
+# Tanstack
+.tanstack

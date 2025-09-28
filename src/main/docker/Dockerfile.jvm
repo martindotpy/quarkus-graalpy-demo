@@ -2,15 +2,18 @@ ARG JAVA_VERSION=21
 
 FROM registry.access.redhat.com/ubi9/openjdk-${JAVA_VERSION}:latest AS build
 
+ARG PUBLIC_API_URL
+
 ENV LANG=es_ES.UTF-8
 ENV TZ=America/Lima
+ENV NODE_ENV=production
 
 WORKDIR /app
 
 COPY pom.xml .
-RUN mvn dependency:go-offline -B
+RUN mvn dependency:go-offline -B graalpy:process-graalpy-resources
 
-COPY src ./src
+COPY --chown=185:0 src ./src
 RUN mvn package -DskipTests
 
 
@@ -27,7 +30,7 @@ COPY --chown=185 --from=build /app/target/quarkus-app/quarkus/ /deployments/quar
 EXPOSE 8080
 USER 185
 
-ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager"
+ENV JAVA_OPTS_APPEND="-Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UnlockExperimentalVMOptions -XX:+EnableJVMCI"
 ENV JAVA_APP_JAR="/deployments/quarkus-run.jar"
 
 ENTRYPOINT [ "/opt/jboss/container/java/run/run-java.sh" ]

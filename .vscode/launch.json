@@ -1,13 +1,36 @@
 {
-    "version": "0.2.0",
-    "configurations": [
-        {
-            "name": "(Debug 🐞)",
-            "type": "java",
-            "preLaunchTask": "quarkus:dev",
-            "request": "attach",
-            "hostName": "localhost",
-            "port": 5005
-        }
-    ]
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Quarkus Python Sentimental Analysis (Server 🐞)",
+      "type": "java",
+      "preLaunchTask": "quarkus:dev",
+      "request": "attach",
+      "hostName": "localhost",
+      "port": 5005,
+      "presentation": {
+        "hidden": true
+      }
+    },
+    {
+      "name": "Quarkus Python Sentimental Analysis (Client 🐞)",
+      "request": "launch",
+      "type": "chrome",
+      "url": "http://localhost:8080",
+      "webRoot": "${workspaceFolder}/src/main/webui",
+      "presentation": {
+        "hidden": true
+      }
+    }
+  ],
+  "compounds": [
+    {
+      "name": "Quarkus Python Sentimental Analysis (Debug 🐞)",
+      "configurations": [
+        "Quarkus Python Sentimental Analysis (Server 🐞)",
+        "Quarkus Python Sentimental Analysis (Client 🐞)"
+      ],
+      "stopAll": true
+    }
+  ]
 }

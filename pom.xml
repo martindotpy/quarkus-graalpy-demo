@@ -5,28 +5,30 @@
 
     <modelVersion>4.0.0</modelVersion>
     <groupId>dev.martindotpy</groupId>
-    <artifactId>quarkus-and-python</artifactId>
+    <artifactId>quarkus-graalpy-sentiment-analysis</artifactId>
     <version>1.0.0-SNAPSHOT</version>
 
     <properties>
         <java.version>21</java.version>
-
+        <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.release>${java.version}</maven.compiler.release>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.group-id>io.quarkus.platform</quarkus.platform.group-id>
+        <quarkus.platform.artifact-id>quarkus-bom</quarkus.platform.artifact-id>
         <quarkus.platform.version>3.28.1</quarkus.platform.version>
 
-        <org.mapstruct.version>1.6.3</org.mapstruct.version>
-
         <graalvm.python.version>25.0.0</graalvm.python.version>
+
+        <lombok.version>1.18.38</lombok.version>
+
+        <org.mapstruct.version>1.6.3</org.mapstruct.version>
 
         <compiler-plugin.version>3.14.0</compiler-plugin.version>
         <surefire-plugin.version>3.5.3</surefire-plugin.version>
 
-        <skipITs>true</skipITs>
+        <skipITs>false</skipITs>
     </properties>
 
     <dependencyManagement>
@@ -58,13 +60,14 @@
             <artifactId>quarkus-rest-jackson</artifactId>
         </dependency>
 
-        <!-- Template engine -->
+        <!-- Quinoa -->
         <dependency>
-            <groupId>io.quarkiverse.qute.web</groupId>
-            <artifactId>quarkus-qute-web</artifactId>
+            <groupId>io.quarkiverse.quinoa</groupId>
+            <artifactId>quarkus-quinoa</artifactId>
+            <version>2.6.2</version>
         </dependency>
 
-        <!-- Quarkus config file -->
+        <!-- YAML support -->
         <dependency>
             <groupId>io.quarkus</groupId>
             <artifactId>quarkus-config-yaml</artifactId>
@@ -101,25 +104,17 @@
             <version>${graalvm.python.version}</version>
             <type>pom</type>
         </dependency>
-
         <dependency>
             <groupId>org.graalvm.python</groupId>
             <artifactId>python-embedding</artifactId>
             <version>${graalvm.python.version}</version>
         </dependency>
 
-        <!-- Testing -->
-        <dependency>
-            <groupId>io.rest-assured</groupId>
-            <artifactId>rest-assured</artifactId>
-            <scope>test</scope>
-        </dependency>
-
         <!-- Lombok -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
-            <version>1.18.38</version>
+            <version>${lombok.version}</version>
             <scope>provided</scope>
             <optional>true</optional>
         </dependency>
@@ -131,16 +126,45 @@
             <version>${org.mapstruct.version}</version>
             <scope>provided</scope>
         </dependency>
-
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>0.2.0</version>
         </dependency>
+
+        <!-- Testing -->
+        <dependency>
+            <groupId>io.rest-assured</groupId>
+            <artifactId>rest-assured</artifactId>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
 
     <build>
         <plugins>
+            <!-- GraalVM Python -->
+            <plugin>
+                <groupId>org.graalvm.python</groupId>
+                <artifactId>graalpy-maven-plugin</artifactId>
+                <version>${graalvm.python.version}</version>
+                <configuration>
+                    <packages>
+                        <package>vader-sentiment==3.2.1.1</package>
+                        <package>requests</package>
+                    </packages>
+                    <resourceDirectory>GRAALPY-VFS/${project.groupId}/${project.artifactId}</resourceDirectory>
+                </configuration>
+
+                <executions>
+                    <execution>
+                        <phase>install</phase>
+                        <goals>
+                            <goal>process-graalpy-resources</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+
             <!-- Quarkus tasks -->
             <plugin>
                 <groupId>${quarkus.platform.group-id}</groupId>
@@ -157,28 +181,14 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
 
-            <!-- GraalVM Python -->
-            <plugin>
-                <groupId>org.graalvm.python</groupId>
-                <artifactId>graalpy-maven-plugin</artifactId>
-                <version>${graalvm.python.version}</version>
                 <configuration>
-                    <packages>
-                        <package>vader-sentiment==3.2.1.1</package>
-                        <package>requests</package>
-                    </packages>
-                    <resourceDirectory>GRAALPY-VFS/${project.groupId}/${project.artifactId}</resourceDirectory>
+                    <systemProperties>
+                        <project.groupId>${project.groupId}</project.groupId>
+                        <project.artifactId>${project.artifactId}</project.artifactId>
+                        <project.version>${project.version}</project.version>
+                    </systemProperties>
                 </configuration>
-
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>process-graalpy-resources</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- Compiler plugin -->
@@ -196,7 +206,7 @@
                         <path>
                             <groupId>org.projectlombok</groupId>
                             <artifactId>lombok</artifactId>
-                            <version>1.18.38</version>
+                            <version>${lombok.version}</version>
                         </path>
                         <path>
                             <groupId>org.projectlombok</groupId>
@@ -241,6 +251,14 @@
                 </configuration>
             </plugin>
         </plugins>
+
+        <!-- Resources - Inject maven properties to application.yaml -->
+        <resources>
+            <resource>
+                <directory>src/main/resources</directory>
+                <filtering>true</filtering>
+            </resource>
+        </resources>
     </build>
 
     <!-- Native configuration -->
